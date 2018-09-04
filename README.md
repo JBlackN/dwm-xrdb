@@ -13,7 +13,7 @@ git checkout tags/6.1 -b v6.1
 
 git apply dwm-xrdb-6.1.diff
 
-rm config.h
+rm config.h                           # !!! CAREFUL !!!
 make config.h
 vi config.h                           # Fill in path to your .Xresources file.
 
