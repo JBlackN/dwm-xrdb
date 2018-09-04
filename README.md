@@ -31,4 +31,4 @@ dwm.selbgcolor
 dwm.selfgcolor
 ```
 
-Default key to reload is `F5`.
+Default key to reload is `Mod+F5`.
