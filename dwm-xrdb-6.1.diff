@@ -1,15 +1,5 @@
-From 920617a80d3009fe01843f1f7d36d3a92d19c2fa Mon Sep 17 00:00:00 2001
-From: Petr Schmied <peter9209@gmail.com>
-Date: Tue, 28 Aug 2018 21:08:53 +0200
-Subject: [PATCH] XRDB
-
----
- config.def.h | 14 ++++++++------
- dwm.c        | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 60 insertions(+), 6 deletions(-)
-
 diff --git a/config.def.h b/config.def.h
-index 7054c06..e2f2634 100644
+index 7054c06..436e16f 100644
 --- a/config.def.h
 +++ b/config.def.h
 @@ -5,12 +5,12 @@ static const char *fonts[] = {
@@ -39,13 +29,13 @@ index 7054c06..e2f2634 100644
  	TAGKEYS(                        XK_1,                      0)
  	TAGKEYS(                        XK_2,                      1)
  	TAGKEYS(                        XK_3,                      2)
-@@ -111,3 +112,4 @@ static Button buttons[] = {
+@@ -110,4 +111,3 @@ static Button buttons[] = {
+ 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
  	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
  };
- 
-+static const char *xres = "/home/USERNAME/.Xresources";
+-
 diff --git a/dwm.c b/dwm.c
-index 0362114..0f257ec 100644
+index 0362114..bb1238c 100644
 --- a/dwm.c
 +++ b/dwm.c
 @@ -35,6 +35,7 @@
@@ -94,31 +84,45 @@ index 0362114..0f257ec 100644
  static void zoom(const Arg *arg);
  
  /* variables */
-@@ -1029,6 +1047,23 @@ killclient(const Arg *arg)
+@@ -1029,6 +1047,37 @@ killclient(const Arg *arg)
  	}
  }
  
 +void
 +loadxrdb()
 +{
-+  XrmDatabase xrdb = XrmGetFileDatabase(xres);
-+  if (xrdb != NULL) {
-+    char *type;
-+    XrmValue value;
++  Display *display;
++  char *resm;
++  XrmDatabase xrdb;
++  char *type;
++  XrmValue value;
 +
-+    XRDB_LOAD_COLOR("dwm.normbordercolor", normbordercolor);
-+    XRDB_LOAD_COLOR("dwm.normbgcolor", normbgcolor);
-+    XRDB_LOAD_COLOR("dwm.normfgcolor", normfgcolor);
-+    XRDB_LOAD_COLOR("dwm.selbordercolor", selbordercolor);
-+    XRDB_LOAD_COLOR("dwm.selbgcolor", selbgcolor);
-+    XRDB_LOAD_COLOR("dwm.selfgcolor", selfgcolor);
++  display = XOpenDisplay(NULL);
++
++  if (display != NULL) {
++    resm = XResourceManagerString(display);
++
++    if (resm != NULL) {
++      xrdb = XrmGetStringDatabase(resm);
++
++      if (xrdb != NULL) {
++        XRDB_LOAD_COLOR("dwm.normbordercolor", normbordercolor);
++        XRDB_LOAD_COLOR("dwm.normbgcolor", normbgcolor);
++        XRDB_LOAD_COLOR("dwm.normfgcolor", normfgcolor);
++        XRDB_LOAD_COLOR("dwm.selbordercolor", selbordercolor);
++        XRDB_LOAD_COLOR("dwm.selbgcolor", selbgcolor);
++        XRDB_LOAD_COLOR("dwm.selfgcolor", selfgcolor);
++      }
++    }
 +  }
++
++  XCloseDisplay(display);
 +}
 +
  void
  manage(Window w, XWindowAttributes *wa)
  {
-@@ -2106,6 +2141,22 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
+@@ -2106,6 +2155,22 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
  	return -1;
  }
  
@@ -141,14 +145,12 @@ index 0362114..0f257ec 100644
  void
  zoom(const Arg *arg)
  {
-@@ -2132,6 +2183,7 @@ main(int argc, char *argv[])
+@@ -2132,6 +2197,8 @@ main(int argc, char *argv[])
  	if (!(dpy = XOpenDisplay(NULL)))
  		die("dwm: cannot open display\n");
  	checkotherwm();
-+  loadxrdb();
++	XrmInitialize();
++	loadxrdb();
  	setup();
  	scan();
  	run();
--- 
-2.16.4
-
